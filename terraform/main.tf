@@ -1,4 +1,4 @@
-resource "aws_instance" "myec2" {
+resource "aws_instance" "ec2" {
   ami             = "ami-080e1f13689e07408" # Update this with the latest Amazon Linux 2 AMI
   instance_type   = "t2.micro"
   key_name        = "D:\\abz\\.credentials\\wordpress.pem" # Ensure you have this key pair created
@@ -11,7 +11,7 @@ resource "aws_instance" "myec2" {
 }
 
 
-resource "aws_db_instance" "mydb" {
+resource "aws_db_instance" "db" {
   identifier           = "wpdbinstance"
   db_name              = "wp_database"
   engine               = "mysql"
