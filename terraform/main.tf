@@ -1,7 +1,8 @@
+# Create EC2 instance in public subnet
 resource "aws_instance" "ec2" {
-  ami             = "ami-080e1f13689e07408" # Update this with the latest Amazon Linux 2 AMI
+  ami             = "ami-080e1f13689e07408"
   instance_type   = "t2.micro"
-  key_name        = "D:\\abz\\.credentials\\wordpress.pem" # Ensure you have this key pair created
+  key_name        = "wordpress.pem"
   subnet_id       = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.allow_web.name]
 
@@ -10,15 +11,15 @@ resource "aws_instance" "ec2" {
   }
 }
 
-
+# Create database instance in private subnet
 resource "aws_db_instance" "db" {
   identifier           = "wpdbinstance"
   db_name              = "wp_database"
   engine               = "mysql"
   engine_version       = "8.0.28"
   instance_class       = "db.t3.micro"
-  username             = "wordpressuseradmin"
-  password             = "wordpressuserp@ssword123"
+  username             = "admin"
+  password             = random_password.password.result
   parameter_group_name = "default.mysql8.0"
 
   allocated_storage = 20
@@ -26,4 +27,21 @@ resource "aws_db_instance" "db" {
 
   vpc_security_group_ids = [aws_security_group.allow_mysql.id]
   skip_final_snapshot    = true
+}
+
+# Create S3 bucket
+resource "aws_s3_bucket" "bucket" {
+  bucket = "terraform-state-bucket"
+
+  tags = {
+    Name        = "Terraform state bucket"
+    Environment = "Dev"
+  }
+}
+
+# Create random password for database
+resource "random_password" "password" {
+  length           = 16
+  special          = true
+  override_special = "_%+^&*$#!~"
 }
