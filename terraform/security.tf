@@ -1,5 +1,5 @@
 resource "aws_security_group" "allow_mysql" {
-  name        = "allow_mysql"
+  name        = "Allow_mysql"
   description = "Allow MySQL inbound traffic"
   vpc_id      = aws_vpc.main_vpc.id
 

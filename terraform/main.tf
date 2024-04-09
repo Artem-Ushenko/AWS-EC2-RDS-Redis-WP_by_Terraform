@@ -2,9 +2,9 @@
 resource "aws_instance" "ec2" {
   ami             = "ami-080e1f13689e07408"
   instance_type   = "t2.micro"
-  key_name        = "wordpress.pem"
+  key_name        = "wordpress"
   subnet_id       = aws_subnet.public_subnet.id
-  security_groups = [aws_security_group.allow_web.name]
+  security_groups = [aws_security_group.allow_web.id]
 
   tags = {
     Name = "WordPress"
@@ -25,18 +25,9 @@ resource "aws_db_instance" "db" {
   allocated_storage = 20
   storage_type      = "gp2"
 
+  db_subnet_group_name = aws_db_subnet_group.db_subnet.name
   vpc_security_group_ids = [aws_security_group.allow_mysql.id]
   skip_final_snapshot    = true
-}
-
-# Create S3 bucket
-resource "aws_s3_bucket" "bucket" {
-  bucket = "terraform-state-bucket"
-
-  tags = {
-    Name        = "Terraform state bucket"
-    Environment = "Dev"
-  }
 }
 
 # Create random password for database
