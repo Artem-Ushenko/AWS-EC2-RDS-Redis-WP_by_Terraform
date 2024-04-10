@@ -30,6 +30,20 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot    = true
 }
 
+# Create elasticache instance in private subnet
+resource "aws_elasticache_cluster" "redis" {
+  cluster_id           = "wprediscluster"
+  engine               = "redis"
+  node_type            = "cache.m4.large"
+  num_cache_nodes      = 1
+  parameter_group_name = "default.redis7"
+  engine_version       = "7.1"
+  port                 = 6379
+
+  subnet_group_name = aws_elasticache_subnet_group.redis_subnet.name
+  security_group_ids = [aws_security_group.allow_redis.id]
+}
+
 # Create random password for database
 resource "random_password" "password" {
   length           = 16

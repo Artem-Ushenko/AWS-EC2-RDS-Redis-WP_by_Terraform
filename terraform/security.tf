@@ -19,6 +19,28 @@ resource "aws_security_group" "allow_mysql" {
   }
 }
 
+resource "aws_security_group" "allow_redis" {
+  name        = "Allow_redis"
+  description = "Allow Redis inbound traffic"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  ingress {
+    from_port   = 6379
+    to_port     = 6379
+    protocol    = "tcp"
+    security_groups = [aws_security_group.allow_web.id]
+
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["10.0.0.0/24"]
+  }
+}
+
+
 resource "aws_security_group" "allow_web" {
   name        = "allow_web"
   description = "Allow web traffic"

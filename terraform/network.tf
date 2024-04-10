@@ -44,6 +44,16 @@ resource "aws_db_subnet_group" "db_subnet" {
   }
 }
 
+# Create elasticache subnet
+resource "aws_elasticache_subnet_group" "redis_subnet" {
+  name       = "RedisSubnet"
+  subnet_ids = [aws_subnet.private_subnet.id, aws_subnet.public_subnet.id]
+
+  tags = {
+    Name = "Redis subnet"
+  }
+}
+
 ############################################################### Create internet gateway
 
 # Create internet gateway
