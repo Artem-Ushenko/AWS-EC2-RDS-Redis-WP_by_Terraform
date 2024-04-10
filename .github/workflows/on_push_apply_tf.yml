@@ -44,5 +44,11 @@ jobs:
 
       - name: 'Terraform Apply'
         if: github.event_name == 'workflow_dispatch'
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve && terraform output show -json > output.json
         working-directory: ./terraform
+
+      - name: 'Upload Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: output.json
+          path: ./terraform/output.json
