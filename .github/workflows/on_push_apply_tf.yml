@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_infra:
-    name: "Build AWS Infrastructure via Terraform"
+    name: "Apply AWS Infrastructure via Terraform"
     runs-on: ubuntu-latest
 
     defaults:
