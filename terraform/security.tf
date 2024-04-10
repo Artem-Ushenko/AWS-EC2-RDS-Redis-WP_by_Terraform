@@ -7,7 +7,8 @@ resource "aws_security_group" "allow_mysql" {
     from_port   = 3306
     to_port     = 3306
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/24"]
+    security_groups = [aws_security_group.allow_web.id]
+
   }
 
   egress {
