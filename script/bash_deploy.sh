@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+
+
 # Prompt user for database and server details
 read -rp "Enter database name (use your RDS database name): " DB_NAME
 echo
@@ -9,9 +11,18 @@ read -rp "Enter database admin password (use your RDS database password): " DB_P
 echo
 read -rp "Enter database host (use your RDS database endpoint without port, which looks like xxxxx.amazonaws.com): " DB_HOST
 echo
+read -rp "Enter Redis password (leave blank if none): " REDIS_PASSWORD
+echo
+read -rp "Enter Redis host (use your Redis endpoint, e.g., xxxxx.cache.amazonaws.com): " REDIS_HOST
+echo
+read -rp "Enter Redis port (default 6379): " REDIS_PORT
+echo
 read -rp "Enter public DNS of EC2 instance for the server configuration, which looks like xxxxx.compute-1.amazonaws.com: " EC2_DNS
 echo
 
+# Set WordPress path
+WP_PATH="/var/www/html/wordpress"
+USER="www-data"
 # Function to handle MySQL configuration errors
 handle_mysql_error() {
     printf "Failed to configure MySQL database and user.\\n" >&2
@@ -36,8 +47,8 @@ install_packages() {
         return 1
     fi
 
-    sudo chown -R www-data:www-data /var/www/html/wordpress
-    sudo chmod -R 755 /var/www/html/wordpress
+    sudo chown -R $USER:$USER $WP_PATH
+    sudo chmod -R 755 $WP_PATH
 }
 
 # Configure MySQL
@@ -70,6 +81,32 @@ configure_php() {
     fi
 }
 
+# Configure Redis
+configure_redis() {
+    local wp_config="$WP_PATH/wp-config.php"
+
+    if [ ! -f "$wp_config" ]; then
+        printf "WordPress config file does not exist.\\n" >&2
+        return 1
+    fi
+
+    # Set Redis cache settings
+    local redis_host="$REDIS_HOST" # Change this to your Redis endpoint
+    local redis_port="$REDIS_PORT" # Default Redis port, change if different
+    local redis_password="$REDIS_PASSWORD" # This should be set to your Redis password
+
+    # Adding Redis configuration to wp-config.php
+    {
+        echo "define('WP_REDIS_HOST', '$redis_host');"
+        echo "define('WP_REDIS_PORT', '$redis_port');"
+        echo "define('WP_REDIS_PASSWORD', '$redis_password');"
+        echo "define('WP_CACHE_KEY_SALT', 'wp_$(date +%s)');"
+        echo "define('WP_CACHE', true);"
+    } >> "$wp_config"
+
+    printf "Redis configuration for WordPress updated successfully.\\n"
+}
+
 # Configure Nginx
 configure_nginx() {
     local config_path="/etc/nginx/sites-available/wordpress"
@@ -77,7 +114,7 @@ configure_nginx() {
     if ! sudo tee "$config_path" > /dev/null <<EOF
 server {
     listen 80;
-    root /var/www/html/wordpress;
+    root    $WP_PATH;
     index  index.php index.html index.htm;
     server_name  $EC2_DNS;
 
@@ -120,6 +157,7 @@ main() {
     install_packages || return 1
     configure_mysql || return 1
     configure_php || return 1
+    configure_redis || return 1
     configure_nginx || return 1
     printf "Configuration completed successfully.\\n"
 }
