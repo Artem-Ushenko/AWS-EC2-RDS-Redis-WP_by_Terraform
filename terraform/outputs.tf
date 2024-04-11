@@ -4,6 +4,9 @@ output "public_ip" {
 output "public_dns" {
   value = aws_instance.ec2.public_dns
 }
+output "db_name" {
+  value = aws_db_instance.db.db_name
+}
 output "db_endpoint" {
   value     = aws_db_instance.db.endpoint
   sensitive = true
