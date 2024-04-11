@@ -28,9 +28,6 @@ output "redis_endpoint" {
   value     = aws_elasticache_cluster.redis.cache_nodes.0.address
   sensitive = true
 }
-output "redis_password" {
-  value = aws_elasticache_cluster.redis.cache_nodes.0.password
-}
 output "redis_port" {
   value = aws_elasticache_cluster.redis.cache_nodes.0.port
 }

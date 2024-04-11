@@ -33,7 +33,6 @@ resource "aws_db_instance" "db" {
 # Create elasticache instance in private subnet
 resource "aws_elasticache_cluster" "redis" {
   cluster_id           = var.cluster_id
-  password             = random_password.password.result
   engine               = "redis"
   node_type            = var.node_type
   num_cache_nodes      = 1
