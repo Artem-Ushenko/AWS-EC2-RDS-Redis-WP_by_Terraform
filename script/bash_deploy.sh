@@ -165,6 +165,7 @@ EOF
 main() {
     install_packages || return 1
     configure_mysql || return 1
+    configure_wp_database || return 1
     configure_php || return 1
     configure_redis || return 1
     configure_nginx || return 1
