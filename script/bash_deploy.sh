@@ -21,6 +21,8 @@ echo
 # Set WordPress path
 WP_PATH="/var/www/html/wordpress"
 USER="www-data"
+WP_CONFIG="$WP_PATH/wp-config.php"
+
 # Function to handle MySQL configuration errors
 handle_mysql_error() {
     printf "Failed to configure MySQL database and user.\\n" >&2
@@ -29,7 +31,7 @@ handle_mysql_error() {
 
 # Install required packages
 install_packages() {
-    if ! sudo apt-get update || ! sudo apt-get upgrade -y; then
+    if ! sudo apt-get update -y; then
         printf "Failed to update and upgrade system packages.\\n" >&2
         return 1
     fi
@@ -66,18 +68,17 @@ EOF
 }
 
 configure_wp_database() {
-    local wp_config="$WP_PATH/wp-config.php"
 
-    if [ ! -f "$wp_config" ]; then
+    if [ ! -f "$WP_CONFIG" ]; then
         printf "WordPress config file does not exist at %s.\\n" "$WP_PATH" >&2
         return 1
     fi
 
     # Update database settings in wp-config.php
-    sed -i "s/define('DB_NAME', '.*');/define('DB_NAME', '$DB_NAME');/" "$wp_config"
-    sed -i "s/define('DB_USER', '.*');/define('DB_USER', '$DB_USER');/" "$wp_config"
-    sed -i "s/define('DB_PASSWORD', '.*');/define('DB_PASSWORD', '$DB_PASSWORD');/" "$wp_config"
-    sed -i "s/define('DB_HOST', '.*');/define('DB_HOST', '$DB_HOST');/" "$wp_config"
+    sed -i "s/define('DB_NAME', '.*');/define('DB_NAME', '$DB_NAME');/" "$WP_CONFIG"
+    sed -i "s/define('DB_USER', '.*');/define('DB_USER', '$DB_USER');/" "$WP_CONFIG"
+    sed -i "s/define('DB_PASSWORD', '.*');/define('DB_PASSWORD', '$DB_PASSWORD');/" "$WP_CONFIG"
+    sed -i "s/define('DB_HOST', '.*');/define('DB_HOST', '$DB_HOST');/" "$WP_CONFIG"
 
     printf "Database configuration updated successfully in wp-config.php.\\n"
 }
@@ -99,24 +100,18 @@ configure_php() {
 
 # Configure Redis
 configure_redis() {
-    local wp_config="$WP_PATH/wp-config.php"
-
-    if [ ! -f "$wp_config" ]; then
+    if [ ! -f "$WP_CONFIG" ]; then
         printf "WordPress config file does not exist.\\n" >&2
         return 1
     fi
 
-    # Set Redis cache settings
-    local redis_host="$REDIS_HOST" # Change this to your Redis endpoint
-    local redis_port="$REDIS_PORT" # Default Redis port, change if different
-
     # Adding Redis configuration to wp-config.php
     {
-        echo "define('WP_REDIS_HOST', '$redis_host');"
-        echo "define('WP_REDIS_PORT', '$redis_port');"
+        echo "define('WP_REDIS_HOST', '$REDIS_HOST');"
+        echo "define('WP_REDIS_PORT', '$REDIS_PORT');"
         echo "define('WP_CACHE_KEY_SALT', 'wp_$(date +%s)');"
         echo "define('WP_CACHE', true);"
-    } >> "$wp_config"
+    } >> "$WP_CONFIG"
 
     printf "Redis configuration for WordPress updated successfully.\\n"
 }
