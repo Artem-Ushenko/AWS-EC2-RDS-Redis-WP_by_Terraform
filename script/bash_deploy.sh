@@ -45,6 +45,7 @@ install_packages() {
         return 1
     fi
 
+    sudo cp $WP_PATH/wp-config-sample.php $WP_PATH/wp-config.php
     sudo chown -R $USER:$USER $WP_PATH
     sudo chmod -R 755 $WP_PATH
 }
@@ -53,8 +54,8 @@ install_packages() {
 configure_mysql() {
     local mysql_cmd="mysql -h $DB_HOST -P 3306 -u $DB_USER -p$DB_PASSWORD"
     if ! $mysql_cmd <<-EOF
-  CREATE USER IF NOT EXISTS '$DB_USER'@'%' IDENTIFIED WITH mysql_native_password BY '$DB_PASSWORD';
-  GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%';
+  CREATE USER IF NOT EXISTS '$DB_USER'@'$DB_HOST' IDENTIFIED WITH mysql_native_password BY '$DB_PASSWORD';
+  GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'$DB_HOST';
   FLUSH PRIVILEGES;
 EOF
 
@@ -62,6 +63,23 @@ EOF
     then
         handle_mysql_error
     fi
+}
+
+configure_wp_database() {
+    local wp_config="$WP_PATH/wp-config.php"
+
+    if [ ! -f "$wp_config" ]; then
+        printf "WordPress config file does not exist at %s.\\n" "$WP_PATH" >&2
+        return 1
+    fi
+
+    # Update database settings in wp-config.php
+    sed -i "s/define('DB_NAME', '.*');/define('DB_NAME', '$DB_NAME');/" "$wp_config"
+    sed -i "s/define('DB_USER', '.*');/define('DB_USER', '$DB_USER');/" "$wp_config"
+    sed -i "s/define('DB_PASSWORD', '.*');/define('DB_PASSWORD', '$DB_PASSWORD');/" "$wp_config"
+    sed -i "s/define('DB_HOST', '.*');/define('DB_HOST', '$DB_HOST');/" "$wp_config"
+
+    printf "Database configuration updated successfully in wp-config.php.\\n"
 }
 
 # Configure PHP
@@ -110,7 +128,7 @@ configure_nginx() {
     if ! sudo tee "$config_path" > /dev/null <<EOF
 server {
     listen 80;
-    root    $WP_PATH;
+    root   $WP_PATH;
     index  index.php index.html index.htm;
     server_name  $EC2_DNS;
 
