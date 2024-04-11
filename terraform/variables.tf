@@ -15,11 +15,6 @@ variable "db_username" {
   default = "admin"
 }
 
-variable "db_password" {
-  type    = string
-  sensitive = true
-}
-
 variable "db_engine_version" {
   description = "MySQL engine version"
   default     = "8.0.28"
@@ -43,6 +38,7 @@ variable "db_parameter_group_name" {
 ########### EC2 variables
 variable "ami_id" {
   type    = string
+  default = "ami-080e1f13689e07408"
 }
 
 variable "key_name" {
@@ -55,14 +51,11 @@ variable "instance_type" {
   default = "t2.micro"
 }
 
-variable "subnet_id" {
-  type    = string
-}
-
 ########### Redis variables
 variable "cluster_id" {
   description = "Identifier for the ElastiCache cluster"
   type        = string
+  default     = "redis-cluster"
 }
 
 variable "node_type" {

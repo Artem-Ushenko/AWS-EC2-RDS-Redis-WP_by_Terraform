@@ -1,6 +1,6 @@
 # Create EC2 instance in public subnet
 resource "aws_instance" "ec2" {
-  ami             = data.aws_ami.ubuntu.id
+  ami             = var.ami_id
   instance_type   = var.instance_type
   key_name        = var.key_name
   subnet_id       = aws_subnet.public_subnet.id
