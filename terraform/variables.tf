@@ -17,7 +17,7 @@ variable "db_username" {
 
 variable "db_password" {
   type    = string
-  default = random_password.password.result
+  sensitive = true
 }
 
 variable "db_engine_version" {
@@ -43,7 +43,6 @@ variable "db_parameter_group_name" {
 ########### EC2 variables
 variable "ami_id" {
   type    = string
-  default = data.aws_ami.ubuntu.id
 }
 
 variable "key_name" {
@@ -58,7 +57,6 @@ variable "instance_type" {
 
 variable "subnet_id" {
   type    = string
-  default = aws_subnet.public_subnet.id
 }
 
 ########### Redis variables

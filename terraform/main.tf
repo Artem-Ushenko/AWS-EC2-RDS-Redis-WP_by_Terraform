@@ -1,9 +1,9 @@
 # Create EC2 instance in public subnet
 resource "aws_instance" "ec2" {
-  ami             = var.ami_id
+  ami             = data.aws_ami.ubuntu.id
   instance_type   = var.instance_type
   key_name        = var.key_name
-  subnet_id       = var.subnet_id
+  subnet_id       = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.allow_web.id]
 
   tags = {
@@ -19,7 +19,7 @@ resource "aws_db_instance" "db" {
   engine_version       = var.db_engine_version
   instance_class       = var.instance_class
   username             = var.db_username
-  password             = var.db_password
+  password             = random_password.password.result
   parameter_group_name = var.db_parameter_group_name
 
   allocated_storage = var.allocated_storage
