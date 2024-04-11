@@ -11,8 +11,6 @@ read -rp "Enter database admin password (use your RDS database password): " DB_P
 echo
 read -rp "Enter database host (use your RDS database endpoint without port, which looks like xxxxx.amazonaws.com): " DB_HOST
 echo
-read -rp "Enter Redis password (leave blank if none): " REDIS_PASSWORD
-echo
 read -rp "Enter Redis host (use your Redis endpoint, e.g., xxxxx.cache.amazonaws.com): " REDIS_HOST
 echo
 read -rp "Enter Redis port (default 6379): " REDIS_PORT
@@ -93,13 +91,11 @@ configure_redis() {
     # Set Redis cache settings
     local redis_host="$REDIS_HOST" # Change this to your Redis endpoint
     local redis_port="$REDIS_PORT" # Default Redis port, change if different
-    local redis_password="$REDIS_PASSWORD" # This should be set to your Redis password
 
     # Adding Redis configuration to wp-config.php
     {
         echo "define('WP_REDIS_HOST', '$redis_host');"
         echo "define('WP_REDIS_PORT', '$redis_port');"
-        echo "define('WP_REDIS_PASSWORD', '$redis_password');"
         echo "define('WP_CACHE_KEY_SALT', 'wp_$(date +%s)');"
         echo "define('WP_CACHE', true);"
     } >> "$wp_config"
