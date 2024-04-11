@@ -4,9 +4,9 @@ resource "aws_security_group" "allow_mysql" {
   vpc_id      = aws_vpc.main_vpc.id
 
   ingress {
-    from_port   = 3306
-    to_port     = 3306
-    protocol    = "tcp"
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
     security_groups = [aws_security_group.allow_web.id]
 
   }
@@ -25,9 +25,9 @@ resource "aws_security_group" "allow_redis" {
   vpc_id      = aws_vpc.main_vpc.id
 
   ingress {
-    from_port   = 6379
-    to_port     = 6379
-    protocol    = "tcp"
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
     security_groups = [aws_security_group.allow_web.id]
 
   }
