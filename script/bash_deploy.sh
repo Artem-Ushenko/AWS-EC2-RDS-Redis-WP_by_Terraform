@@ -68,6 +68,7 @@ EOF
 }
 
 configure_wp_database() {
+
     if [ ! -f "$WP_CONFIG" ]; then
         printf "WordPress config file does not exist at %s.\\n" "$WP_PATH" >&2
         return 1
