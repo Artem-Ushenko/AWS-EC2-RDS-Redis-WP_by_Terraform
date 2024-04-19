@@ -1,27 +1,17 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-
-# Prompt user for database and server details
-read -rp "Enter database name (use your RDS database name): " DB_NAME
-echo
-read -rp "Enter database admin user (use your RDS database username): " DB_USER
-echo
-read -rsp "Enter database admin password (use your RDS database password): " DB_PASSWORD
-echo
-read -rp "Enter database host (use your RDS database endpoint without port, which looks like xxxxx.amazonaws.com): " DB_HOST
-echo
-read -rp "Enter Redis host (use your Redis endpoint, e.g., xxxxx.cache.amazonaws.com): " REDIS_HOST
-echo
-read -rp "Enter Redis port (default 6379): " REDIS_PORT
-echo
-read -rp "Enter public DNS of EC2 instance for the server configuration, which looks like xxxxx.compute-1.amazonaws.com: " EC2_DNS
-echo
+# Set environment variables from SSM to be used in the script
+export EC2_DNS=$(aws ssm get-parameter --name "public_dns" --with-decryption --query "Parameter.Value" --output text)
+export REDIS_HOST=$(aws ssm get-parameter --name "redis_endpoint" --with-decryption --query "Parameter.Value" --output text)
+export DB_HOST=$(aws ssm get-parameter --name "db_endpoint" --with-decryption --query "Parameter.Value" --output text)
+export DB_NAME=$(aws ssm get-parameter --name "db_name" --with-decryption --query "Parameter.Value" --output text)
+export DB_USER=$(aws ssm get-parameter --name "db_username" --with-decryption --query "Parameter.Value" --output text)
+export DB_PASSWORD=$(aws ssm get-parameter --name "db_password" --with-decryption --query "Parameter.Value" --output text)
 
 # Set WordPress path
 WP_PATH="/var/www/html/wordpress"
 
 # Set WordPress config file path
-USER="www-data"
 WP_CONFIG="$WP_PATH/wp-config.php"
 
 # Function to handle MySQL configuration errors
@@ -49,6 +39,8 @@ install_packages() {
     fi
 
     sudo cp $WP_PATH/wp-config-sample.php $WP_PATH/wp-config.php
+    sudo chown -R www-data:www-data $WP_PATH
+    sudo chmod -R 755 $WP_PATH
 }
 
 # Configure MySQL
