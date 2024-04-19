@@ -3,7 +3,7 @@
 
 ## Project Description:
 
-### This repository contains Terraform scripts designed to provision a complete AWS infrastructure optimized for a WordPress web application. The infrastructure includes the following AWS resources configured within a dedicated Virtual Private Cloud (VPC):
+#### This repository contains Terraform scripts designed to provision a complete AWS infrastructure optimized for a WordPress web application. The infrastructure includes the following AWS resources configured within a dedicated Virtual Private Cloud (VPC):
 
 - Amazon EC2 Instance: Serves as the host for the WordPress application, offering scalable compute capacity.
 - Bash Scripting: automate WordPress configuration by Bash script
