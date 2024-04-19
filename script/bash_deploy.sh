@@ -102,7 +102,8 @@ configure_redis() {
 
     printf "Redis configuration for WordPress updated successfully.\\n"
 }
-
+    sudo chown -R $USER:$USER $WP_PATH
+    sudo chmod -R 755 $WP_PATH
 # Configure Nginx
 configure_nginx() {
     local config_path="/etc/nginx/sites-available/wordpress"

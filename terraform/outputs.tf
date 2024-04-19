@@ -9,9 +9,10 @@ output "public_dns" {
 # Output database
 output "db_name" {
   value = aws_db_instance.db.db_name
+  sensitive = true
 }
 output "db_endpoint" {
-  value     = aws_db_instance.db.endpoint
+  value     = split(":", aws_db_instance.db.endpoint)[0]
   sensitive = true
 }
 output "db_username" {
@@ -27,7 +28,4 @@ output "db_password" {
 output "redis_endpoint" {
   value     = aws_elasticache_cluster.redis.cache_nodes.0.address
   sensitive = true
-}
-output "redis_port" {
-  value = aws_elasticache_cluster.redis.cache_nodes.0.port
 }
