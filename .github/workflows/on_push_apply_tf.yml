@@ -62,7 +62,7 @@ jobs:
         id: read_json
         uses: dorny/paths-filter@v3.0.2
         with:
-          path: output.json
+          path: ./terraform/output.json
           filters: |
             dns:
               - 'public_dns.value'
@@ -84,6 +84,11 @@ jobs:
                   export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
                   export AWS_DEFAULT_OUTPUT="json"
                   chmod 700 script/bash_deploy.sh
-                  sudo ./bash_deploy.sh
+                  sudo ./script/bash_deploy.sh
+      
+      - name: 'Check Response WP'
+        run: curl ${{ env.HOST }}
 
-            
+      - name: 'Terraform Destroy'
+        run: terraform destroy -auto-approve
+        working-directory: ./terraform
