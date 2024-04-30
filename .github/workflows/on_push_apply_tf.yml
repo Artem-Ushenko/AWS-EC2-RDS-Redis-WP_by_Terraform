@@ -4,7 +4,12 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
-
+  
+env:
+    PORT: 22
+    USERNAME: "ubuntu"
+    
+  
 jobs:
   build_infra:
     name: "Apply AWS Infrastructure via Terraform"
@@ -52,3 +57,33 @@ jobs:
         with:
           name: output.json
           path: ./terraform/output.json
+          
+      - name: Read public DNS from JSON
+        id: read_json
+        uses: dorny/paths-filter@v3.0.2
+        with:
+          path: output.json
+          filters: |
+            dns:
+              - 'public_dns.value'
+
+      - name: 'Set Public DNS To Env Variable'
+        run: echo "HOST=${{ fromJson(steps.read_json.outputs.dns).public_dns.value }}" >> $GITHUB_ENV
+
+      - name: 'Executing remote ssh commands using ssh key'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ env.HOST }}
+          username: ${{ env.USERNAME }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          port: ${{ env.PORT }}
+          script: sudo apt update
+                  sudo apt install awscli -y
+                  export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+                  export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  export AWS_DEFAULT_REGION=${{ secrets.AWS_REGION }}
+                  export AWS_DEFAULT_OUTPUT="json"
+                  chmod 700 script/bash_deploy.sh
+                  sudo ./bash_deploy.sh
+
+            
