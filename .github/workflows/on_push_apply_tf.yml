@@ -57,15 +57,9 @@ jobs:
         with:
           name: output.json
           path: ./terraform/output.json
-          
-      - name: Get values from the package.json
-        id: packageJson
-        uses: RadovanPelka/github-action-json@v1.0.2
-        with:
-          path: "./terraform/output.json"
 
       - name: 'Set Public DNS To Env Variable'
-        run: echo "HOST=${{ steps.packageJson.outputs.public_dns.value }}" >> $GITHUB_ENV
+        run: terraform output public_dns >> $GITHUB_ENV
 
       - name: 'Executing remote ssh commands using ssh key'
         uses: appleboy/ssh-action@v1.0.3
