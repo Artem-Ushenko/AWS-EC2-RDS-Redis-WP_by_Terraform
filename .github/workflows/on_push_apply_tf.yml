@@ -59,7 +59,7 @@ jobs:
           path: ./terraform/output.json
 
       - name: 'Set Public DNS To Env Variable'
-        run: terraform output public_dns >> $GITHUB_ENV
+        run: echo "HOST=$(terraform output -raw instance_public_dns)" >> $GITHUB_ENV
 
       - name: 'Executing remote ssh commands using ssh key'
         uses: appleboy/ssh-action@v1.0.3
