@@ -2,7 +2,7 @@ name: CI Apply Terraform Infrastructure
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "dev" ]
   workflow_dispatch:
   
 env:
@@ -58,17 +58,14 @@ jobs:
           name: output.json
           path: ./terraform/output.json
           
-      - name: Read public DNS from JSON
-        id: read_json
-        uses: dorny/paths-filter@v3.0.2
+      - name: Get values from the package.json
+        id: packageJson
+        uses: RadovanPelka/github-action-json@v1.0.2
         with:
-          path: ./terraform/output.json
-          filters: |
-            dns:
-              - 'public_dns.value'
+          path: "./terraform/output.json"
 
       - name: 'Set Public DNS To Env Variable'
-        run: echo "HOST=${{ fromJson(steps.read_json.outputs.dns).public_dns.value }}" >> $GITHUB_ENV
+        run: echo "HOST=${{ steps.packageJson.outputs.public_dns.value }}" >> $GITHUB_ENV
 
       - name: 'Executing remote ssh commands using ssh key'
         uses: appleboy/ssh-action@v1.0.3
@@ -87,7 +84,7 @@ jobs:
                   sudo ./script/bash_deploy.sh
       
       - name: 'Check Response WP'
-        run: curl ${{ env.HOST }}
+        run: curl http://${{ env.HOST }}
 
       - name: 'Terraform Destroy'
         run: terraform destroy -auto-approve
