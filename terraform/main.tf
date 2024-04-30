@@ -6,7 +6,7 @@ resource "aws_instance" "ec2" {
   subnet_id       = aws_subnet.public_subnet.id
   security_groups = [aws_security_group.allow_web.id]
 
-  iam_instance_profile = aws_iam_instance_profile.ec2_ssm_profile.name
+  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
   tags = {
     Name = "WordPress"

@@ -8,7 +8,7 @@ output "public_dns" {
 
 # Output database
 output "db_name" {
-  value = aws_db_instance.db.db_name
+  value     = aws_db_instance.db.db_name
   sensitive = true
 }
 output "db_endpoint" {
